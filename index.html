@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Enlaces - Los Cuatro Fantásticos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    
+    <!-- Menú de navegación (movido arriba para mejor flujo) -->
+    <nav class="main-nav" aria-label="Navegación principal">
+      
+        <div class="nav-container">
+            <ul class="nav-links" aria-label="Herramientas de IA">
+                <li><a href="https://chatgpt.com/" target="_blank"><i class="fas fa-robot"></i> ChatGPT</a></li>
+                <li><a href="https://grok.com/?referrer=website" target="_blank"><i class="fab fa-x-twitter"></i> Grok</a></li>
+                <li><a href="https://claude.ai/new" target="_blank"><i class="fas fa-leaf"></i> Claude</a></li>
+                <li><a href="https://chat.deepseek.com/" target="_blank"><i class="fas fa-search"></i> Deepseek</a></li>
+                <li><a href="#"><i class="fas fa-cloud"></i> Mega</a></li>
+                <li><a href="#"><i class="fab fa-google-drive"></i> Drive</a></li>
+                <li><a href="#"><i class="fab fa-twitter"></i> Twitter</a></li>
+                <li><a href="https://www.youtube.com/" target="_blank"><i class="fab fa-youtube"></i> YouTube</a></li>
+                <li><a href="https://github.com/" target="_blank"><i class="fab fa-github"></i> GitHub</a></li>
+                <li><a href="https://www.reddit.com/?rdt=59861" target="_blank"><i class="fa-brands fa-reddit"></i> Redit</a></li>
+                <li><a href="https://es.linkedin.com/" target="_blank"><i class="fa-brands fa-linkedin"></i> Linkedink</a></li>
+
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Buscador externo -->
+    <div class="search-engine-container">
+        <select id="searchEngine" aria-label="Seleccionar motor de búsqueda">
+            <option value="https://www.google.com/search?q=">Google</option>
+            <option value="https://www.bing.com/search?q=">Bing</option>
+            <option value="https://search.yahoo.com/search?p=">Yahoo</option>
+            <option value="https://duckduckgo.com/?q=">DuckDuckGo</option>
+        </select>
+        <input type="text" id="searchQuery" placeholder="Escribe tu búsqueda..." autocomplete="off" aria-label="Texto de búsqueda">
+        <button onclick="performSearch()" aria-label="Realizar búsqueda">
+            <i class="fas fa-search"></i> Buscar
+        </button>
+    </div>
+
+    <!-- Botón para mostrar/ocultar contenido -->
+    <div class="toggle-container">
+        <button id="toggleContent" class="toggle-btn" aria-expanded="false" aria-controls="mainContent">
+            <i class="fas fa-chevron-down">enlaces</i> 
+        </button>
+    </div>
+
+    <!-- Contenido colapsable (inicialmente oculto) -->
+    <div id="mainContent" style="display: none;">
+        <!-- Buscador interno -->
+        <div class="search-container">
+            <input type="text" id="search" placeholder="Buscar en categorías y enlaces..." onkeyup="filterItems()" aria-label="Buscar enlaces">
+            <button onclick="openModal('category')" aria-label="Añadir nueva categoría">
+                <i class="fas fa-folder-plus"></i> Añadir Categoría
+            </button>
+            <button onclick="openModal('link')" aria-label="Añadir nuevo enlace">
+                <i class="fas fa-plus-circle"></i> Añadir Enlace
+            </button>
+        </div>
+        
+        <!-- Contenido principal -->
+        <main class="content">
+            <section class="column" id="categories-column" aria-labelledby="categories-heading">
+                <h2 id="categories-heading"><i class="fas fa-folder-open"></i> Categorías</h2>
+                <div id="categories-list" class="fade-in"></div>
+            </section>
+            <section class="column" id="links-column" aria-labelledby="links-heading">
+                <h2 id="links-heading"><i class="fas fa-link"></i> Enlaces</h2>
+                <div id="links-list" class="fade-in"></div>
+            </section>
+            <section class="column" id="details-column" aria-labelledby="details-heading">
+                <h2 id="details-heading"><i class="fas fa-info-circle"></i> Detalles</h2>
+                <div class="details" id="details-content">
+                    <p>Selecciona un enlace para ver sus detalles</p>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <!-- Modales -->
+    <div class="modal" id="categoryModal" role="dialog" aria-labelledby="categoryModalTitle" aria-hidden="true">
+        <h2 id="categoryModalTitle"><i class="fas fa-folder-plus"></i> Añadir Nueva Categoría</h2>
+        <input type="text" id="newCategory" placeholder="Nombre de la categoría" aria-label="Nombre de la categoría">
+        <div id="categoryError" class="error-message" role="alert" aria-live="assertive"></div>
+        <div class="modal-buttons">
+            <button onclick="closeModal()" class="secondary" aria-label="Cancelar">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button onclick="addCategory()" aria-label="Añadir categoría">
+                <i class="fas fa-check"></i> Añadir
+            </button>
+        </div>
+    </div>
+    
+    <div class="modal" id="linkModal" role="dialog" aria-labelledby="linkModalTitle" aria-hidden="true">
+        <h2 id="linkModalTitle"><i class="fas fa-plus-circle"></i> Añadir Nuevo Enlace</h2>
+        <select id="categorySelect" aria-label="Seleccionar categoría">
+            <option value="">Selecciona una categoría</option>
+        </select>
+        <input type="text" id="linkName" placeholder="Nombre del enlace" aria-label="Nombre del enlace">
+        <input type="url" id="linkUrl" placeholder="URL del enlace (https://...)" aria-label="URL del enlace">
+        <textarea id="linkDescription" placeholder="Descripción" aria-label="Descripción del enlace"></textarea>
+        <div id="linkError" class="error-message" role="alert" aria-live="assertive"></div>
+        <div class="modal-buttons">
+            <button onclick="closeModal()" class="secondary" aria-label="Cancelar">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button onclick="addLink()" aria-label="Añadir enlace">
+                <i class="fas fa-check"></i> Añadir
+            </button>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalBackdrop" onclick="closeModal()"></div>
+    <div id="frase-motivadora">
+        <h1 class="titulo_motivador">Frase del día</h1>
+        <div class="frase-container">
+            <blockquote id="frase-texto">"{{ frase.frase }}"</blockquote>
+            <footer id="frase-autor">- {{ frase.autor }}</footer>
+        </div>
+    </div>
+    <!-- JavaScript para el acordeón -->
+    <script>
+async function cargarFrase() {
+    try {
+        console.log("Intentando cargar frase desde http://127.0.0.1:3000/frases.json...");
+        
+        let response = await fetch('http://127.0.0.1:3000/frases.json');
+        
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+
+        let frases = await response.json();
+        console.log("Frases recibidas:", frases);
+
+        if (Array.isArray(frases) && frases.length > 0) {
+            let fraseAleatoria = frases[Math.floor(Math.random() * frases.length)];
+            console.log("Frase seleccionada:", fraseAleatoria);
+
+            document.getElementById("frase-texto").innerText = `"${fraseAleatoria.frase}"`;
+            document.getElementById("frase-autor").innerText = `- ${fraseAleatoria.autor}`;
+        } else {
+            console.error("La respuesta no es un array válido de frases.");
+        }
+    } catch (error) {
+        console.error("Error cargando frase:", error);
+    }
+}
+
+window.onload = cargarFrase;
+
+</script>
+
+    
+    <!-- Tu script.js original -->
+    <script src="script.js"></script>
+</body>
+</html>
